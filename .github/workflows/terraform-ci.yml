@@ -1,0 +1,43 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  terraform-check:
+    name: Terraform Format & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive -diff
+        continue-on-error: false
+
+      - name: Validate gcp_vpc module
+        working-directory: modules/gcp_vpc
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate gcp_gke module
+        working-directory: modules/gcp_gke
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate gcp_vm module
+        working-directory: modules/gcp_vm
+        run: |
+          terraform init -backend=false
+          terraform validate
