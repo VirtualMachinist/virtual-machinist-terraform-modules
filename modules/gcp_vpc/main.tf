@@ -62,3 +62,26 @@ resource "google_compute_firewall" "allow_internal" {
 
   source_ranges = [var.public_cidr, var.private_cidr]
 }
+
+# Cloud Router (required for NAT)
+resource "google_compute_router" "router" {
+  name    = "${var.vpc_name}-router"
+  project = var.project_id
+  region  = var.region
+  network = google_compute_network.vpc.id
+}
+
+# Cloud NAT for private subnet egress
+resource "google_compute_router_nat" "nat" {
+  name                               = "${var.vpc_name}-nat"
+  project                            = var.project_id
+  router                             = google_compute_router.router.name
+  region                             = var.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+
+  subnetwork {
+    name                    = google_compute_subnetwork.private.id
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+}
