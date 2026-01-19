@@ -36,7 +36,7 @@ resource "google_compute_firewall" "allow_iap_ssh" {
     ports    = ["22"]
   }
 
-  source_ranges = ["35.235.240.0/20"]  # IAP's IP range
+  source_ranges = ["35.235.240.0/20"] # IAP's IP range
   target_tags   = ["allow-iap-ssh"]
 }
 
